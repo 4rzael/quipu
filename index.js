@@ -71,7 +71,15 @@ var dongle = new machina.Fsm({
 
         return new Promise(function(resolve){
             debug('killing process id', process.pid);
-            process.kill();
+
+            // Try to kill it gently (^C)
+            process.kill('SIGINT');
+            // If it didn't work: kill it not so gently.
+            setTimeout(function () {
+                if (process && process.kill)
+                    process.kill();
+            }, 2000);
+
             process.on('exit', function(code){
                 debug('Process killed');
                 resolve(code);
